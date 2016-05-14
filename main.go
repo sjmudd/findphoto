@@ -91,9 +91,9 @@ func showVersion() {
 
 // usage returns a usage message and exits with the requested exit code
 func usage(exitCode int) {
-	log.Printf("%s %s\n\n", myName, copyright)
-	log.Printf("Find photo files given various search criteria\n\n")
-	log.Printf("Usage: %s <options> <directory_to_search>\n", myName)
+	fmt.Printf("%s %s\n\n", myName, copyright)
+	fmt.Printf("Find photo files given various search criteria\n\n")
+	fmt.Printf("Usage: %s <options> <directory_to_search>\n", myName)
 	flag.PrintDefaults()
 
 	os.Exit(exitCode)
@@ -115,7 +115,7 @@ func main() {
 	// get options
 	flag.BoolVar(&log.Verbose, "verbose", false, "Enable verbose logging")
 	flag.StringVar(&searchFile, "search-file", "", "Required: File to use containing a line of the base filesnames to search for")
-	flag.StringVar(&cameraModel, "camera-model", "", "camera model (in exif data e.g. 'Canon PowerShot S100'")
+	flag.StringVar(&cameraModel, "camera-model", "", "provide camera model (in exif data) e.g. 'Canon PowerShot S100'")
 	flag.IntVar(&progressInterval, "progress-interval", 60, "time in verbose mode to give an indication of progress")
 	flag.BoolVar(&help, "help", false, "shows this help message")
 	flag.BoolVar(&version, "version", false, "shows the program version and exits")
