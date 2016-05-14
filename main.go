@@ -133,9 +133,8 @@ func main() {
 	}
 
 	// [optionally] log what we are going to do
-	log.MsgVerbose("Checking for files in : %q\n", searchFile)
 	filenames := getFiles(searchFile)
-	log.MsgVerbose("Found %d files in %q\n", len(filenames), searchFile)
+	log.MsgVerbose("Found %d filename(s) in %q\n", len(filenames), searchFile)
 
 	searchPath := flag.Args()[0]
 	log.MsgVerbose("Search path: %q\n", searchPath)
