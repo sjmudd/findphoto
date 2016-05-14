@@ -37,7 +37,11 @@ then we can do the following:
 
 * Find missing files in `missing.ALL` in path `/search/path`
 ```
-$ findphoto --verbose --camera-model="Canon EOS 20D" --search-file=missing.ALL /search/path
+$ findphoto \
+	--verbose \
+	--camera-model="Canon EOS 20D" \
+	--search-file=missing.ALL \
+	/search/path
 ```
 
 * Find missing files in `missing.ALL` in path `/search/path` and make
