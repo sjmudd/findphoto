@@ -35,8 +35,9 @@ import (
 )
 
 var (
-	cameraModel string // e.g. Camera Model Name : Canon PowerShot S100
-	searchFile  string // file containing photo names
+	cameraModel      string // e.g. Camera Model Name : Canon PowerShot S100
+	searchFile       string // file containing photo names
+	progressInterval int    // interval at which to give progress on the search
 )
 
 // given a filename to collect names from return a list of names
@@ -75,6 +76,7 @@ func main() {
 	flag.BoolVar(&log.Verbose, "verbose", false, "Enable verbose logging")
 	flag.StringVar(&searchFile, "search-file", "", "Required: File to use containing a line of the base filesnames to search for")
 	flag.StringVar(&cameraModel, "camera-model", "", "camera model (in exif data e.g. 'Canon PowerShot S100'")
+	flag.IntVar(&progressInterval, "progress-interval", 60, "time in verbose mode to give an indication of progress")
 	flag.Parse()
 
 	if cameraModel != "" {
@@ -84,6 +86,11 @@ func main() {
 		log.Printf("missing option --search-file=XXXX\n")
 		usage(1)
 	}
+	if progressInterval <= 0 {
+		log.Printf("--progress-interval should be a positive number of seconds\n")
+		usage(1)
+	}
+	log.MsgVerbose("progress interval: %d\n", progressInterval)
 
 	// check we have all needed parameters
 	if len(flag.Args()) != 1 {

@@ -76,7 +76,7 @@ func walkPath(path string, info os.FileInfo, err error) error {
 		// log.Printf("Ignoring non-file %q\n", path)
 		return nil // ignore non files
 	}
-	if time.Now().Sub(last) > time.Second*10 {
+	if time.Now().Sub(last) > time.Second*time.Duration(progressInterval) {
 		last = time.Now()
 		log.Printf("Scanned %d files, %d directories, %d non-regular files. Matches: filename: %d, full: %d\n",
 			count,

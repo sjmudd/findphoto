@@ -36,6 +36,7 @@ const (
 )
 
 var (
+	// Verbose if true ensures MsgVerbose() calls will generate output.
 	Verbose         bool
 	backslashNValue = backslashN[0]
 )
