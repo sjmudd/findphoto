@@ -28,15 +28,19 @@ filename (e.g. in your backup) and with a specific camera model
 duplicated and from different cameras.
 
 1. Find missing files in missing.ALL in path /search/path
-`$ findphoto --verbose --camera-model="Canon EOS 20D" --search-file=missing.ALL /search/path`
+```
+$ findphoto --verbose --camera-model="Canon EOS 20D" --search-file=missing.ALL /search/path
+```
 
 2. Find missing files in missing.ALL in path /search/path and make
 symbolic links to them in directory resuls.
-`$ findphoto \
+```
+$ findphoto \
 	--symlink-dir=results \
 	--camera-model="Canon EOS 20D" \
 	--search-file=missing.ALL \
-	/search/path`
+	/search/path
+```
 
 ## To do
 
