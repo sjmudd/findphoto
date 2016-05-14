@@ -31,19 +31,30 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/sjmudd/findphoto/log"
 )
 
-const myVersion = "0.0.3"
+const myVersion = "0.0.4"
 
 var (
+	myName           string // program name taken from os.Args[0]
 	cameraModel      string // e.g. Camera Model Name : Canon PowerShot S100
 	searchFile       string // file containing photo names
 	progressInterval int    // interval at which to give progress on the search
 	version          bool   // show the program version
 	symlinkDir       string // directory where to make symlinks
 )
+
+func init() {
+	myName = os.Args[0]
+	// Split at /
+	stuff := strings.Split(myName, "/")
+	if len(stuff) > 1 {
+		myName = stuff[len(stuff)-1]
+	}
+}
 
 // given a filename to collect names from return a list of names
 func getFiles(filename string) []string {
@@ -70,13 +81,13 @@ func getFiles(filename string) []string {
 
 // showVersion shows the program version and exits
 func showVersion() {
-	fmt.Printf("%s version %s\n", os.Args[0], myVersion)
+	fmt.Printf("%s version %s\n", myName, myVersion)
 	os.Exit(0)
 }
 
 // usage returns a usage message and exits with the requested exit code
 func usage(exitCode int) {
-	log.Printf("Usage: %s <options> <directory_to_search>\n\n", os.Args[0])
+	log.Printf("Usage: %s <options> <directory_to_search>\n\n", myName)
 	flag.PrintDefaults()
 
 	os.Exit(exitCode)
@@ -108,7 +119,7 @@ func main() {
 		showVersion()
 	}
 	// show the version when running in verbose mode
-	log.Printf("%s version %s\n", os.Args[0], myVersion)
+	log.Printf("%s version %s\n", myName, myVersion)
 
 	if cameraModel != "" {
 		log.Printf("camera-model: %s\n", cameraModel)
