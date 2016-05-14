@@ -27,7 +27,16 @@ filename (e.g. in your backup) and with a specific camera model
 (taken from the EXIF data). This is because some file names may be
 duplicated and from different cameras.
 
-`$ findphoto --verbose --camera-model="Canon EOS 20D" --search-file=missing.ALL /path/where/to/look/for/files`
+1. Find missing files in missing.ALL in path /search/path
+`$ findphoto --verbose --camera-model="Canon EOS 20D" --search-file=missing.ALL /search/path`
+
+2. Find missing files in missing.ALL in path /search/path and make
+symbolic links to them in directory resuls.
+`$ findphoto \
+	--symlink-dir=results \
+	--camera-model="Canon EOS 20D" \
+	--search-file=missing.ALL \
+	/search/path`
 
 ## To do
 

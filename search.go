@@ -62,6 +62,17 @@ func search(path string, filenames []string) {
 	}
 }
 
+// create a symlink from symlinkDir/filePart -> path
+func symlinkMatch(filePart, path string) {
+	link := symlinkDir + "/" + filePart
+	err := os.Symlink(path, link)
+	if err != nil {
+		log.MsgError("Failed to create symlink: %s -> %s: %v\n", link, path, err)
+		os.Exit(1)
+	}
+	log.MsgInfo("Created symlink: %s -> %s\n", link, path)
+}
+
 func walkPath(path string, info os.FileInfo, err error) error {
 	count++
 
@@ -101,14 +112,17 @@ func walkPath(path string, info os.FileInfo, err error) error {
 		return nil // not matched the camera model
 	}
 
-	// we have a match
-	log.MsgInfo("Match: %s: %s\n", filePart, path)
-
-	// finally add the filename details
-	fullMatches++
+	fullMatches++ // finally add the filename details
 	// update the known locations
 	existing = append(existing, path)
 	locations[filePart] = existing
+
+	if symlinkDir != "" {
+		symlinkMatch(filePart, path)
+	} else {
+		// Just show the match
+		log.MsgInfo("Match: %s: %s\n", filePart, path)
+	}
 
 	return nil
 }

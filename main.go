@@ -35,13 +35,14 @@ import (
 	"github.com/sjmudd/findphoto/log"
 )
 
-const myVersion = "0.0.1"
+const myVersion = "0.0.2"
 
 var (
 	cameraModel      string // e.g. Camera Model Name : Canon PowerShot S100
 	searchFile       string // file containing photo names
 	progressInterval int    // interval at which to give progress on the search
 	version          bool   // show the program version
+	symlinkDir       string // directory where to make symlinks
 )
 
 // given a filename to collect names from return a list of names
@@ -57,7 +58,7 @@ func getFiles(filename string) []string {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		entry := scanner.Text()
-		log.MsgVerbose("Entry: %s\n", entry)
+		// log.MsgVerbose("Entry: %s\n", entry)
 		filenames = append(filenames, entry)
 	}
 
@@ -81,6 +82,18 @@ func usage(exitCode int) {
 	os.Exit(exitCode)
 }
 
+func checkSymlinkDir(name string) {
+	info, err := os.Stat(name)
+	if err != nil {
+		log.Fatal("Failed to stat symlink-dir %s: %v", name, err)
+	}
+	if !info.Mode().IsDir() {
+		log.Fatal("symlinkdir %s is not a directory", name)
+	}
+
+	log.Printf("symlink dir: %s\n", symlinkDir)
+}
+
 func main() {
 	// get options
 	flag.BoolVar(&log.Verbose, "verbose", false, "Enable verbose logging")
@@ -88,6 +101,7 @@ func main() {
 	flag.StringVar(&cameraModel, "camera-model", "", "camera model (in exif data e.g. 'Canon PowerShot S100'")
 	flag.IntVar(&progressInterval, "progress-interval", 60, "time in verbose mode to give an indication of progress")
 	flag.BoolVar(&version, "version", false, "shows the program version and exits")
+	flag.StringVar(&symlinkDir, "symlink-dir", "", "directory to symlink found files against")
 	flag.Parse()
 
 	if version {
@@ -98,6 +112,9 @@ func main() {
 
 	if cameraModel != "" {
 		log.Printf("camera-model: %s\n", cameraModel)
+	}
+	if symlinkDir != "" {
+		checkSymlinkDir(symlinkDir)
 	}
 	if searchFile == "" {
 		log.Printf("missing option --search-file=XXXX\n")
