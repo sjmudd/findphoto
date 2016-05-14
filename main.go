@@ -1,11 +1,11 @@
-package main 
+package main
 
 import (
 	"log"
 	"os"
 )
 
-func main () {
+func main() {
 	// collect filenames from X
 	// collect search directory from Y
 
@@ -17,13 +17,11 @@ func main () {
 	searchPath := os.Args[2]
 	log.Printf("Search path: %q\n", searchPath)
 
-	
-
-//	walk the tree at Y looking for files in X
-//	if found
-//		have seen file before?
-//			yes, continue and ignore
-//		check the exifinfo for the camera
-//		if canon eos 70d then make a copy with checksum
+	//	walk the tree at Y looking for files in X
+	//	if found
+	//		have seen file before?
+	//			yes, continue and ignore
+	//		check the exifinfo for the camera
+	//		if canon eos 70d then make a copy with checksum
 
 }
