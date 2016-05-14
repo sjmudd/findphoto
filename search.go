@@ -95,7 +95,7 @@ func walkPath(path string, info os.FileInfo, err error) error {
 	}
 
 	filenameMatches++
-	log.MsgVerbose("Filename match: %s: %s\n", filePart, path)
+	// log.MsgVerbose("Filename match: %s: %s\n", filePart, path)
 
 	if !checkCameraModel(path) {
 		return nil // not matched the camera model

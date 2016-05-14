@@ -35,7 +35,7 @@ import (
 
 // scan the EXIF data looking for the camera model and check if it's what we are looking for
 func checkCameraModel(path string) bool {
-	log.MsgVerbose("checkCameraModel(%q)\n", path)
+	// log.MsgVerbose("checkCameraModel(%q)\n", path)
 	if cameraModel == "" {
 		return true // we don't care about the camera
 	}
