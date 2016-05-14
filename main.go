@@ -35,7 +35,7 @@ import (
 	"github.com/sjmudd/findphoto/log"
 )
 
-const myVersion = "0.0.2"
+const myVersion = "0.0.3"
 
 var (
 	cameraModel      string // e.g. Camera Model Name : Canon PowerShot S100

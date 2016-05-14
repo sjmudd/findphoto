@@ -63,9 +63,23 @@ func search(path string, filenames []string) {
 }
 
 // create a symlink from symlinkDir/filePart -> path
+// - if there's a symlink there already then just return
 func symlinkMatch(filePart, path string) {
 	link := symlinkDir + "/" + filePart
-	err := os.Symlink(path, link)
+
+	info, err := os.Stat(link)
+	if err == nil {
+		// Stat() succeeds
+		if (info.Mode() & os.ModeSymlink) != 0 {
+			log.MsgInfo("Symlink %s already exists: ignoring file: %s\n", link, path)
+			return
+		}
+	} else {
+		// ignore errors as probably the file is missing.
+		// perhaps I should only ignore the error "not found" or whatever but worry about that later.
+	}
+
+	err = os.Symlink(path, link)
 	if err != nil {
 		log.MsgError("Failed to create symlink: %s -> %s: %v\n", link, path, err)
 		os.Exit(1)
