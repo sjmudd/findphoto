@@ -36,9 +36,13 @@ import (
 	"github.com/sjmudd/findphoto/log"
 )
 
-const myVersion = "0.0.4"
+const (
+	copyright = "(C) 2016 Simon J Mudd <sjmudd@pobox.com>"
+	myVersion = "0.0.5"
+)
 
 var (
+	help             bool   // do we want help?
 	myName           string // program name taken from os.Args[0]
 	cameraModel      string // e.g. Camera Model Name : Canon PowerShot S100
 	searchFile       string // file containing photo names
@@ -87,7 +91,9 @@ func showVersion() {
 
 // usage returns a usage message and exits with the requested exit code
 func usage(exitCode int) {
-	log.Printf("Usage: %s <options> <directory_to_search>\n\n", myName)
+	log.Printf("%s %s\n\n", myName, copyright)
+	log.Printf("Find photo files given various search criteria\n\n")
+	log.Printf("Usage: %s <options> <directory_to_search>\n", myName)
 	flag.PrintDefaults()
 
 	os.Exit(exitCode)
@@ -111,10 +117,14 @@ func main() {
 	flag.StringVar(&searchFile, "search-file", "", "Required: File to use containing a line of the base filesnames to search for")
 	flag.StringVar(&cameraModel, "camera-model", "", "camera model (in exif data e.g. 'Canon PowerShot S100'")
 	flag.IntVar(&progressInterval, "progress-interval", 60, "time in verbose mode to give an indication of progress")
+	flag.BoolVar(&help, "help", false, "shows this help message")
 	flag.BoolVar(&version, "version", false, "shows the program version and exits")
 	flag.StringVar(&symlinkDir, "symlink-dir", "", "directory to symlink found files against")
 	flag.Parse()
 
+	if help {
+		usage(0)
+	}
 	if version {
 		showVersion()
 	}
