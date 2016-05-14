@@ -48,7 +48,7 @@ var (
 
 // search scans for files which are matching and records their location
 func search(path string, filenames []string) {
-	log.Printf("Populating locations...\n")
+	// log.Printf("Populating locations...\n")
 	for i := range filenames {
 		locations[filenames[i]] = nil // not found yet
 	}
