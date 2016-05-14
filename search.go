@@ -73,6 +73,13 @@ func symlinkMatch(filePart, path string) {
 	log.MsgInfo("Created symlink: %s -> %s\n", link, path)
 }
 
+// walkPath scans through the directory tree given looking for files
+// which match the name in locations.  Every progressInterval seconds
+// an update is logged showing the current status as scanning a large
+// filesystem such as one containing backups can take a long time.
+// We check the exif data of the file to see if it matches the
+// camera-model, and if we have a match we either show the match
+// or make a symlink to the symlink-dir if defined.
 func walkPath(path string, info os.FileInfo, err error) error {
 	count++
 
@@ -89,7 +96,7 @@ func walkPath(path string, info os.FileInfo, err error) error {
 	}
 	if time.Now().Sub(last) > time.Second*time.Duration(progressInterval) {
 		last = time.Now()
-		log.Printf("Scanned %d files, %d directories, %d non-regular files. Matches: filename: %d, full: %d\n",
+		log.Printf("Scanned %d files, %d directories, %d non-regular files. Matches: filename: %d, found: %d\n",
 			count,
 			directories,
 			notRegular,
