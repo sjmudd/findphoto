@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/rwcarlsen/goexif/exif"
@@ -33,35 +34,51 @@ import (
 	"github.com/sjmudd/findphoto/log"
 )
 
-// scan the EXIF data looking for the camera model and check if it's what we are looking for
-func checkCameraModel(path string) bool {
-	// log.MsgVerbose("checkCameraModel(%q)\n", path)
-	if cameraModel == "" {
-		return true // we don't care about the camera
-	}
-
+// getCameraModel returns the name of the camera model
+func getCameraModel(path string) (string, error) {
+	log.MsgDebug("getCameraModel(%q)\n", path)
 	f, err := os.Open(path)
 	if err != nil {
-		log.Fatalf("Unable to open file %q: %v", path, err)
+		return "", fmt.Errorf("getCameraModel(%q): Unable to open file: %v", path, err)
 	}
 	defer f.Close()
+	// log.MsgDebug("%q opened\n", path)
 
 	// Optionally register camera makenote data parsing - currently Nikon and
 	// Canon are supported.
 	// exif.RegisterParsers(mknote.All...)
-
 	x, err := exif.Decode(f)
 	if err != nil {
-		log.Fatal(err)
+		return "", fmt.Errorf("getCameraModel(%q) could not decode exif data: %v", path, err)
+	}
+	if showExifData {
+		log.MsgInfo("Exif data for: %q\n%+v", path, x)
 	}
 
 	camModel, err := x.Get(exif.Model)
 	if err != nil {
-		log.Fatal("Could not get camera model from file %s: %v", path, err)
+		return "", fmt.Errorf("Could not get camera model from file %s: %v", path, err)
 	}
+
 	foundModel, err := camModel.StringVal()
 	if err != nil {
-		log.Fatal("Could not get camera model from file (StringVal failed) %s: %v", path, err)
+		return "", fmt.Errorf("Could not get camera model from file (StringVal failed) %s: %v", path, err)
+	}
+
+	// return what we found
+	return foundModel, nil
+}
+
+// scan the EXIF data looking for the camera model and check if it's what we are looking for
+func checkCameraModel(path string) bool {
+	log.MsgDebug("checkCameraModel(%q)\n", path)
+	if cameraModel == "" {
+		return true // we don't care about the camera
+	}
+
+	foundModel, err := getCameraModel(path)
+	if err != nil {
+		return false
 	}
 
 	if foundModel != cameraModel {

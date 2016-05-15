@@ -26,24 +26,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/sjmudd/findphoto/log"
 )
 
 var (
 	// put the files into a map for easier reference
-	locations       = make(map[string]([]string))
-	start           time.Time
-	last            time.Time
-	count           int
-	directories     int
-	notRegular      int
-	filenameMatches int
-	fullMatches     int
+	locations = make(map[string]([]string))
 )
 
 // search scans for files which are matching and records their location
@@ -54,8 +47,6 @@ func search(path string, filenames []string) {
 	}
 
 	// walk the tree at Y looking for files in X
-	start = time.Now()
-	last = start
 	log.Printf("Searching...\n")
 	if err := filepath.Walk(path, walkPath); err != nil {
 		log.Fatal("Problem walking path %q: %v", path, err)
@@ -77,6 +68,7 @@ func symlinkMatch(filePart, path string) {
 	} else {
 		// ignore errors as probably the file is missing.
 		// perhaps I should only ignore the error "not found" or whatever but worry about that later.
+		log.MsgDebug("Error with Stat(%q): %v", link, err)
 	}
 
 	err = os.Symlink(path, link)
@@ -95,28 +87,41 @@ func symlinkMatch(filePart, path string) {
 // camera-model, and if we have a match we either show the match
 // or make a symlink to the symlink-dir if defined.
 func walkPath(path string, info os.FileInfo, err error) error {
-	count++
+	log.MsgDebug("walkPath(%q,...)\n", path)
+	counters.Count++
 
 	if info.Mode().IsDir() {
-		directories++
+		counters.Directories++
 		//	log.Printf("Searching: %s\n", path)
 		return nil
 	}
+	log.MsgDebug("%q is not a directory\n", path)
 
 	if !info.Mode().IsRegular() {
-		notRegular++
+		counters.NotRegular++
 		// log.Printf("Ignoring non-file %q\n", path)
 		return nil // ignore non files
 	}
-	if time.Now().Sub(last) > time.Second*time.Duration(progressInterval) {
-		last = time.Now()
-		log.Printf("Scanned %d files, %d directories, %d non-regular files. Matches: filename: %d, found: %d\n",
-			count,
-			directories,
-			notRegular,
-			filenameMatches,
-			fullMatches)
+	log.MsgDebug("%q is a regular file\n", path)
+	log.MsgDebug("showCameraModel: %v\n", showCameraModel)
+
+	if showCameraModel {
+		log.MsgDebug("looking for camera model\n")
+		cameraModel, err := getCameraModel(path)
+		if err == nil {
+			log.MsgDebug("Found camera model: %v for %v\n", cameraModel, path)
+			fmt.Printf("%s: %s\n", cameraModel, path)
+		} else {
+			log.MsgDebug("getCameraModel(%q) returns error: %v\n", path, err)
+		}
+		return nil
 	}
+	log.MsgDebug("not showing the camera model\n", path)
+
+	log.MsgInfo("done some camera model stuff already maybe\n")
+
+	// report counters if needed
+	counters.Report()
 
 	components := strings.Split(path, "/")
 	filePart := components[len(components)-1]
@@ -126,14 +131,14 @@ func walkPath(path string, info os.FileInfo, err error) error {
 		return nil // filename does not match
 	}
 
-	filenameMatches++
+	counters.FilenameMatches++
 	// log.MsgVerbose("Filename match: %s: %s\n", filePart, path)
 
 	if !checkCameraModel(path) {
 		return nil // not matched the camera model
 	}
 
-	fullMatches++ // finally add the filename details
+	counters.FullMatches++ // finally add the filename details
 	// update the known locations
 	existing = append(existing, path)
 	locations[filePart] = existing

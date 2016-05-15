@@ -32,13 +32,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/sjmudd/findphoto/log"
 )
 
 const (
 	copyright = "(C) 2016 Simon J Mudd <sjmudd@pobox.com>"
-	myVersion = "0.0.5"
+	myVersion = "0.0.6"
 )
 
 var (
@@ -49,6 +50,11 @@ var (
 	progressInterval int    // interval at which to give progress on the search
 	version          bool   // show the program version
 	symlinkDir       string // directory where to make symlinks
+	showCameraModel  bool   // show the camera model of the given file
+	showExifData     bool   // show the EXIF data of a file (part of debugging)
+	verbose          bool   // change to verbose mode
+	debug            bool   // change to debug mode
+	counters         *Stats
 )
 
 func init() {
@@ -61,7 +67,10 @@ func init() {
 }
 
 // given a filename to collect names from return a list of names
-func getFiles(filename string) []string {
+func getFilenames(filename string) []string {
+	if filename == "" {
+		return nil // no input -> no output
+	}
 	var filenames []string
 
 	file, err := os.Open(filename)
@@ -114,7 +123,10 @@ func checkSymlinkDir(name string) {
 func main() {
 	// get options
 	flag.BoolVar(&help, "help", false, "shows this help message")
-	flag.BoolVar(&log.Verbose, "verbose", false, "Enable verbose logging")
+	flag.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
+	flag.BoolVar(&debug, "debug", false, "Enable debug logging")
+	flag.BoolVar(&showCameraModel, "show-camera-model", false, "Show the camera model for the file(s) specified")
+	flag.BoolVar(&showExifData, "show-exif-data", false, "Show the EXIF data of a file. (intended for debugging)")
 	flag.BoolVar(&version, "version", false, "shows the program version and exits")
 	flag.IntVar(&progressInterval, "progress-interval", 60, "time in verbose mode to give an indication of progress")
 	flag.StringVar(&cameraModel, "camera-model", "", "provide camera model (in exif data) e.g. 'Canon PowerShot S100'")
@@ -128,6 +140,13 @@ func main() {
 	if version {
 		showVersion()
 	}
+	if debug {
+		log.LogLevel = log.LogLevelDebug
+	} else if verbose {
+		log.LogLevel = log.LogLevelVerbose
+	}
+	log.MsgVerbose("LogLevel: %s", log.LogLevelName())
+
 	// show the version when running in verbose mode
 	log.Printf("%s version %s\n", myName, myVersion)
 
@@ -137,15 +156,16 @@ func main() {
 	if symlinkDir != "" {
 		checkSymlinkDir(symlinkDir)
 	}
-	if searchFile == "" {
+	if searchFile == "" && !showCameraModel {
 		log.Printf("missing option --search-file=XXXX\n")
 		usage(1)
 	}
 	if progressInterval <= 0 {
 		log.Printf("--progress-interval should be a positive number of seconds\n")
 		usage(1)
+	} else {
+		counters = NewStats(time.Duration(progressInterval))
 	}
-	log.MsgVerbose("progress interval: %d\n", progressInterval)
 
 	// check we have all needed parameters
 	if len(flag.Args()) != 1 {
@@ -153,9 +173,14 @@ func main() {
 		usage(1)
 	}
 
+	log.MsgVerbose("progress interval: %d\n", progressInterval)
+
 	// [optionally] log what we are going to do
-	filenames := getFiles(searchFile)
-	log.MsgVerbose("Found %d filename(s) in %q\n", len(filenames), searchFile)
+	var filenames []string
+	if searchFile != "" {
+		filenames = getFilenames(searchFile)
+		log.MsgVerbose("Found %d filename(s) in %q\n", len(filenames), searchFile)
+	}
 
 	searchPath := flag.Args()[0]
 	log.MsgVerbose("Search path: %q\n", searchPath)

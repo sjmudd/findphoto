@@ -31,14 +31,25 @@ import (
 	realLog "log"
 )
 
+type LogLevelType int
+
 const (
-	backslashN = "\n"
+	backslashN                = "\n"
+	LogLevelInfo LogLevelType = iota // 3 levels for now
+	LogLevelVerbose
+	LogLevelDebug
 )
 
 var (
-	// Verbose if true ensures MsgVerbose() calls will generate output.
-	Verbose         bool
 	backslashNValue = backslashN[0]
+	// LogLevel records the current LogLevel
+	LogLevel LogLevelType
+	// logLevelName records the names of each LogLevel
+	logLevelName = map[LogLevelType]string{
+		LogLevelInfo:    "Info",
+		LogLevelVerbose: "Verbose",
+		LogLevelDebug:   "Debug",
+	}
 )
 
 // -------------------------------------------------------------------------
@@ -69,6 +80,11 @@ func Fatalf(format string, v ...interface{}) {
 // wrapper around the existing names
 // -------------------------------------------------------------------------
 
+// LogLevelName returns the string equivalent of the LogLevel
+func LogLevelName() string {
+	return logLevelName[LogLevel]
+}
+
 // MsgInfo is like log.Printf
 func MsgInfo(format string, v ...interface{}) {
 	realLog.Printf(format, v...)
@@ -76,7 +92,14 @@ func MsgInfo(format string, v ...interface{}) {
 
 // MsgVerbose is like log.Printf IFF Verbose is set
 func MsgVerbose(format string, v ...interface{}) {
-	if Verbose {
+	if LogLevel >= LogLevelVerbose {
+		MsgInfo(format, v...)
+	}
+}
+
+// MsgDebug is like log.Printf IFF LogLevel == LogLevelDebug
+func MsgDebug(format string, v ...interface{}) {
+	if LogLevel >= LogLevelDebug {
 		MsgInfo(format, v...)
 	}
 }
