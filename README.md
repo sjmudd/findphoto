@@ -54,6 +54,15 @@ $ findphoto \
 	/search/path
 ```
 
+* Show the camera model of some files:
+
+```
+$ ./findphoto \
+	--verbose \
+	--show-camera-model \
+	/path/to/some/photo/files
+```
+
 ## To do
 
 * add more search criteria or filters
