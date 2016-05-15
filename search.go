@@ -118,8 +118,6 @@ func walkPath(path string, info os.FileInfo, err error) error {
 	}
 	log.MsgDebug("not showing the camera model\n", path)
 
-	log.MsgInfo("done some camera model stuff already maybe\n")
-
 	// report counters if needed
 	counters.Report()
 
